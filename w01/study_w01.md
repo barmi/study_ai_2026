@@ -37,3 +37,56 @@ print(35/49)
 
 ### 02-1. 훈련 데이터와 테스트 데이터
 - https://colab.research.google.com/drive/1BJ9R0mxGuZ4SMW2nKej4IjyuqSSjaC88
+
+~~~ python
+# zip() 함수는 여러 개의 이터러블(예: 리스트)에서 각각의 요소를 하나씩 가져와 튜플로 묶는 함수
+fish_data = [[l, w] for l, w in zip(fish_length, fish_weight)]
+fish_target = [1]*35 + [0]*14
+
+# 잘못된 샘플링 방법
+
+from sklearn.neighbors import KNeighborsClassifier
+
+kn = KNeighborsClassifier()
+
+train_input = fish_data[:35]
+train_target = fish_target[:35]
+
+test_input = fish_data[35:]
+test_target = fish_target[35:]
+
+kn.fit(train_input, train_target)
+kn.score(test_input, test_target)
+
+# numPy를 사용한 올바른 샘플링 방법
+import numpy as np
+
+input_arr = np.array(fish_data)
+target_arr = np.array(fish_target)
+
+# 올바른 샘플링 방법
+train_input, test_input, train_target, test_target = train_test_split(input_arr, target_arr, test_size=0.3, random_state=42)
+
+# ---------
+np.random.seed(42)
+index = np.arange(49)
+np.random.shuffle(index)
+
+train_input = input_arr[index[:35]]
+train_target = target_arr[index[:35]]
+
+test_input = input_arr[index[35:]]
+test_target = target_arr[index[35:]]
+
+kn.fit(train_input, train_target)
+kn.score(test_input, test_target)
+kn.predict(test_input)
+
+~~~
+
+- 교재에서는 수동으로 numpy 배열을 섞고 인덱스를 나누어 훈련 데이터와 테스트 데이터를 샘플링하는 방법을 보여주고 있습니다. 하지만 실제로는 `train_test_split` 함수를 사용하는 것이 더 간단하고 직관적입니다. 이 함수는 데이터를 무작위로 섞고 지정된 비율로 훈련 세트와 테스트 세트로 나누어 줍니다.
+- `train_test_split` 함수의 주요 매개변수:
+  - `test_size`: 테스트 세트의 비율을 지정합니다. 예를 들어, `test_size=0.3`이면 전체 데이터의 30%를 테스트 세트로 사용합니다.
+  - `random_state`: 난수 생성기의 시드를 설정하여 결과를 재현 가능하게 합니다. 같은 시드를 사용하면 항상 같은 방식으로 데이터를 섞습니다.
+  - 참고: [scikit-learn train_test_split 공식 문서](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
+
