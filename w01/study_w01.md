@@ -90,3 +90,58 @@ kn.predict(test_input)
   - `random_state`: 난수 생성기의 시드를 설정하여 결과를 재현 가능하게 합니다. 같은 시드를 사용하면 항상 같은 방식으로 데이터를 섞습니다.
   - 참고: [scikit-learn train_test_split 공식 문서](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
 
+### 02-2. 데이터 전처리
+- https://colab.research.google.com/drive/1g2miUqLBGkIWOFgDd8PfR78fhT5EqmcK
+
+~~~ python
+distances, indexes = kn.kneighbors([[25, 150]])
+
+plt.scatter(train_input[:,0], train_input[:,1])
+plt.scatter(25, 150, marker='^')
+plt.scatter(train_input[indexes,0], train_input[indexes,1], marker='D')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+
+print(train_input[indexes])
+print(train_target[indexes])
+print(distances)
+~~~
+
+* 실제로는 도미로 예측되었지만, 이웃 샘플 중 일부는 빙어로 잘못 분류될 수 있습니다. 이는 데이터의 분포와 이웃의 특성에 따라 발생할 수 있는 현상입니다. 따라서 모델의 성능을 평가할 때는 이러한 오차를 고려해야 합니다.
+* `kneighbors` 메서드는 주어진 샘플에 대해 가장 가까운 이웃의 거리와 인덱스를 반환합니다. 이를 통해 모델이 어떤 샘플을 기준으로 예측을 수행하는지 시각적으로 확인할 수 있습니다.
+* 이제 스케일링을 적용하여 데이터의 특성을 조정하면, 모델의 성능이 향상될 수 있습니다. 스케일링은 각 특성의 범위를 일정하게 맞추어 모델이 특정 특성에 편향되지 않도록 합니다.
+* 전처리방법
+    - 표준화(Standardization): 평균을 0, 표준편차를 1로 변환
+    - 정규화(Normalization): 데이터의 범위를 [0, 1]로 변환
+    - 스케일링(Scaling): 데이터의 범위를 일정하게 맞추는 방법으로, 표준화와 정규화가 대표적입니다.
+    - 표준점수(Standard Score, Z-score): 각 데이터 포인트가 평균으로부터 얼마나 떨어져 있는지를 나타내는 값으로, 표준화된 값입니다. 계산식은 (x - μ) / σ로, x는 데이터 포인트, μ는 평균, σ는 표준편차입니다.
+
+~~~ python
+# 표준화
+mean = np.mean(train_input, axis=0)
+std = np.std(train_input, axis=0)
+
+print(mean, std)
+
+train_scaled = (train_input - mean) / std
+
+# 전처리 데이터로 모델 학습
+kn.fit(train_scaled, train_target)
+test_scaled = (test_input - mean) / std
+kn.score(test_scaled, test_target)
+
+# 다시 예측
+kn.predict(test_scaled)
+
+# 그래프로 다시 확인
+distances, indexes = kn.kneighbors([[25, 150]])
+
+plt.scatter(train_scaled[:,0], train_scaled[:,1])
+plt.scatter(new[0], new[1], marker='^')
+plt.scatter(train_scaled[indexes,0], train_scaled[indexes,1], marker='D')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+
+~~~
