@@ -183,3 +183,124 @@ plt.xlabel('length')
 plt.ylabel('weight')
 plt.show()
 ~~~
+
+## 03-3 특성 공학(Feature Engineering)과 규제화(Regularization)
+- https://colab.research.google.com/drive/1d4hQfK976D-mSKLpzNTB6-rX452zI07A
+
+### 정의
+* 특성 공학(Feature Engineering): 
+  * 모델의 성능을 향상시키기 위해 원본 데이터를 변환하거나 새로운 특성을 생성하는 과정입니다. 예를 들어, 기존의 길이(length)와 무게(weight) 데이터를 사용하여 길이의 제곱(length^2)과 같은 새로운 특성을 만들어 모델에 입력할 수 있습니다.
+
+* 규제화(Regularization):
+  * 모델이 과대적합되는 것을 방지하기 위해 모델의 복잡성을 제한하는 기법입니다. 일반적으로 모델의 가중치에 패널티를 부여하여 큰 가중치가 되지 않도록 조정합니다.
+
+* 특성 공학의 예시
+  - 기존 데이터: 길이(length)와 무게(weight)
+  - 새로운 특성 생성: 길이의 제곱(length^2), 길이와 무게의 곱(length * weight) 등
+  - 이렇게 생성된 새로운 특성들은 모델이 데이터의 패턴을 더 잘 학습할 수 있도록 도와줍니다. 예를 들어, 길이와 무게 사이의 비선형 관계를 모델링할 때, 길이의 제곱(length^2)과 같은 특성을 추가하면 모델이 이러한 비선형 관계를 더 잘 포착할 수 있습니다.
+
+- 규제화의 예시
+  - L1 규제(Lasso): 가중치의 절댓값 합에 패널티를 부여하여 일부 가중치를 0으로 만들어 특성 선택(feature selection) 효과를 제공합니다.
+  - L2 규제(Ridge): 가중치의 제곱합에 패널티를 부여하여 가중치가 너무 커지지 않도록 조정합니다. 이는 모델이 특정 특성에 과도하게 의존하지 않도록 도와줍니다.
+  - Elastic Net: L1과 L2 규제를 결합한 방법으로, 두 규제의 장점을 모두 활용할 수 있습니다.
+
+* 규제화의 필요성
+  * 과대적합 방지: 모델이 훈련 데이터에 너무 잘 맞춰져서 새로운 데이터에 대한 일반화 성능이 떨어지는 것을 방지합니다.
+  * 모델 단순화: 규제화를 통해 모델의 복잡성을 줄이고, 불필요한 특성을 제거하여 모델을 단순화할 수 있습니다.
+  * 안정성 향상: 규제화를 통해 모델의 가중치가 너무 커지지 않도록 조정함으로써, 모델의 예측이 안정적이고 신뢰할 수 있도록 합니다.
+  * 모델 해석 용이성: 규제화를 통해 모델의 가중치가 적절하게 조정되면, 모델의 예측에 대한 해석이 더 용이해집니다. 이는 특히 비즈니스 의사결정이나 과학적 연구에서 중요한 요소입니다.
+  * 일반화 성능 향상: 규제화를 통해 모델이 새로운 데이터에 대해 더 나은 일반화 성능을 보일 수 있습니다.
+
+### 사이킷런의 PolynomialFeatures
+
+~~~ python
+# PolynomialFeatures 임포트 (특성 공학)
+from sklearn.preprocessing import PolynomialFeatures
+
+# PolynomialFeatures 예시: 상수항 포함 (bias=True가 기본값)
+poly = PolynomialFeatures()
+# fit() 메서드는 입력 데이터의 특성 조합을 학습합니다.
+# 여기서는 2와 3이라는 두 개의 특성이 있고, 이 특성들을 기반으로 새로운 다항 특성을 어떻게 생성할지 학습합니다.
+# 실제 특성 값을 변환하는 것이 아니라, 어떤 특성 조합을 만들지 규칙을 파악하는 단계입니다.
+poly.fit([[2, 3]])
+# transform() 메서드는 fit()에서 학습한 규칙을 바탕으로 실제 데이터를 변환합니다.
+# 원본 특성 [2, 3]을 바탕으로 상수항(1), 원본 특성(2, 3), 제곱 특성(2^2=4, 3^2=9), 
+# 그리고 교차항(2*3=6)을 포함하는 새로운 특성 배열을 생성합니다.
+print(poly.transform([[2, 3]]))
+
+# 생성된 특성 이름 확인
+poly.get_feature_names_out()
+
+# PolynomialFeatures 예시: 상수항 제외 (include_bias=False)
+poly = PolynomialFeatures(include_bias=False)
+poly.fit([[2, 3]])
+print(poly.transform([[2, 3]]))
+
+# 훈련 세트에 PolynomialFeatures 적용 (degree=2, bias 제외)
+poly = PolynomialFeatures(include_bias=False)
+
+poly.fit(train_input)
+train_poly = poly.transform(train_input)
+
+# 생성된 훈련 세트의 특성 개수 확인
+print(train_poly.shape)
+
+poly.get_feature_names_out()
+
+# 테스트 세트에 동일한 PolynomialFeatures 적용
+test_poly = poly.transform(test_input)
+~~~
+
+### 다중 회귀(Multiple Regression) 모델 훈련 및 평가
+
+~~~ python
+# LinearRegression 모델 훈련 (degree=2 특성 사용)
+from sklearn.linear_model import LinearRegression
+
+lr = LinearRegression()
+lr.fit(train_poly, train_target)
+print(lr.score(train_poly, train_target))
+
+# LinearRegression 모델 테스트 세트 스코어
+print(lr.score(test_poly, test_target))
+
+# 고차 다항 특성 생성 (degree=5, bias 제외)
+poly = PolynomialFeatures(degree=5, include_bias=False)
+
+poly.fit(train_input)
+train_poly = poly.transform(train_input)
+test_poly = poly.transform(test_input)
+
+# 5차 다항 특성으로 변환된 훈련 세트의 특성 개수 확인
+print(train_poly.shape)
+
+# LinearRegression 모델 훈련 (degree=5 특성 사용) - 과대적합 발생
+lr.fit(train_poly, train_target)
+print(lr.score(train_poly, train_target))
+
+# LinearRegression 모델 테스트 세트 스코어 (degree=5 특성 사용) - 과대적합으로 성능 저하
+print(lr.score(test_poly, test_target))
+~~~
+
+### 릿지(Ridge) 회귀 평가:
+
+1.  **과대적합 문제**: `degree=5`의 다항 특성으로 훈련된 일반 선형 회귀 모델(규제 없음)은 훈련 세트에서 `0.9999`라는 거의 완벽한 점수를 얻었지만, 테스트 세트에서는 `-144.40`이라는 매우 낮은(음수) 점수를 보여 극심한 **과대적합(Overfitting)** 문제를 겪었습니다. (셀 `UffVFVTGP8xj` 및 `GtITdlYFg7AY`)
+2.  **릿지 적용 후 성능**: 특성 스케일링을 거친 후, 릿지 회귀를 적용하여 `alpha=0.1`일 때 가장 좋은 성능을 보였습니다. (셀 `HC2D_EX4orCj`의 그래프)
+    *   훈련 세트 점수: `0.9903` (셀 `5S5vhi-vhjzT`)
+    *   테스트 세트 점수: `0.9827` (셀 `5S5vhi-vhjzT`)
+3.  **평가**: 릿지 회귀는 L2 규제를 통해 모델의 복잡성을 효과적으로 줄여 과대적합을 완화했습니다. 훈련 세트와 테스트 세트의 점수 차이가 크게 줄어들고, 테스트 세트 점수가 크게 개선되어 일반화 성능이 향상되었음을 알 수 있습니다. 릿지는 모든 특성의 계수를 0에 가깝게 줄이지만 완전히 0으로 만들지는 않습니다.
+
+### 라쏘(Lasso) 회귀 평가:
+
+1.  **라쏘 적용 후 성능**: 릿지와 마찬가지로 특성 스케일링 후 라쏘 회귀를 적용했으며, `alpha=10`일 때 좋은 테스트 세트 점수를 보였습니다. (셀 `7rkH8Dvzh9UI`의 그래프)
+    *   훈련 세트 점수: `0.9888` (셀 `t4uFD9Flh_Dw`)
+    *   테스트 세트 점수: `0.9824` (셀 `t4uFD9Flh_Dw`)
+2.  **특성 선택(Feature Selection)**: 라쏘 회귀의 가장 큰 특징은 L1 규제를 사용하여 일부 특성의 계수를 아예 0으로 만들 수 있다는 것입니다. 노트북의 마지막 셀(`z_bQc3s8Uoai`)에서 `np.sum(lasso.coef_ == 0)`을 출력한 결과 `40`이라는 숫자가 나왔는데, 이는 `degree=5`로 생성된 총 55개의 특성 중 40개의 특성 계수를 0으로 만들었다는 의미입니다. 즉, 라쏘는 15개의 특성만을 사용해 예측을 수행합니다.
+3.  **평가**: 라쏘 회귀 역시 릿지 회귀와 유사하게 과대적합을 효과적으로 방지하고 모델의 일반화 성능을 향상시켰습니다. 특히, 불필요하거나 중요도가 낮은 특성을 자동으로 제거하여 모델을 더 간결하게 만들고 해석 가능성을 높이는 특성 선택의 이점을 제공합니다.
+
+### 결론:
+
+두 규제 모델(릿지, 라쏘) 모두 `degree=5` 다항 특성에서 발생한 심각한 과대적합 문제를 해결하여 모델의 테스트 성능을 크게 향상시켰습니다. 두 모델 모두 약 `0.98` 수준의 테스트 세트 R-제곱 점수를 달성하여 유사한 예측 성능을 보였습니다.
+
+*   **릿지**: 모든 특성을 유지하면서 계수를 줄여 모델의 복잡성을 제어합니다.
+*   **라쏘**: 일부 특성을 완전히 제거하여 모델을 더 단순하게 만들고, 특성 선택의 효과를 제공합니다.
