@@ -11,7 +11,6 @@
 
 ## 정리
 
-* Artificial Intelligence: The New Electricity and Deep Learning Fundamentals
 * [노트북LM](https://notebook.google.com/notebook/9f76ff71-70ce-4cde-8ae3-b36f94257f27)
 * [강의 노트](video_note_c1w1.pdf)
 
