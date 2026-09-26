@@ -42,15 +42,6 @@
 * [노트북LM](https://notebook.google.com/notebook/6b5617a2-c9f4-4162-bd98-157f785f54b6)
 * [강의 노트](video_note_c1w2-2.pdf)
 
-### 강의 내용 요약
-
-
-
-### 정리
-
-* Python and Vectorization
-* [노트북LM](https://notebook.google.com/notebook/cf01c4ee-33d7-4098-a465-1c79fc8119ae)
-* [강의 노트](video_note_c1w3.pdf)
 
 ### 강의 내용 요약
 **C1W2L11부터 C1W2L18까지의 동영상 강의 내용**을 순서대로 정돈하여, 혼자서도 개념과 구현 방식을 명확히 학습할 수 있도록 요약·정리해 드립니다.
